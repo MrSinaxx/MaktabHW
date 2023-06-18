@@ -17,3 +17,8 @@ def change_clock(start_datetime, end_datetime):
         return "Clock change detected"
     else:
         return "No clock change detected"
+    
+
+def convert_to_hijri_date(gregorian_datetime):
+    hijri_datetime = jdatetime.fromgregorian(datetime=gregorian_datetime)
+    return hijri_datetime.strftime('%Y/%m/%d %H:%M:%S')
