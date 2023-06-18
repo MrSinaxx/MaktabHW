@@ -6,3 +6,10 @@ def calculate_gpa(grades):
     gpa = total_grades / num_grades
     return gpa
 
+def main():
+    grades = [int(grade) for grade in sys.argv[1:]]
+    gpa = calculate_gpa(grades)
+    print(gpa)
+
+if __name__ == '__main__':
+    main()
