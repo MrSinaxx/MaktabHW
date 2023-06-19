@@ -19,3 +19,19 @@ def play_game(start, end, max_guesses):
         guesses_taken += 1
 
     print("Game over. You ran out of guesses.")
+    print(f"The secret number was {secret_number}")
+    
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Number Guessing Game')
+    parser.add_argument('-s', dest='start', type=int, default=0, help='start range')
+    parser.add_argument('-e', dest='end', type=int, default=100, help='end range')
+    parser.add_argument('-g', dest='max_guesses', type=int, default=5, help='maximum number of guesses')
+
+    args = parser.parse_args()
+
+    play_game(args.start, args.end, args.max_guesses)
+
+if __name__ == '__main__':
+    main()
