@@ -8,7 +8,11 @@ url: str = "https://api.openweathermap.org/data/2.5/weather"
 api_key: str = "60be8f85c6c83c4402a1439456f9647c"
 
 
-
+class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self) -> None:
+        parsed_url = urllib.parse.urlparse(self.path)
+        query_params = urllib.parse.parse_qs(parsed_url.query)
+        city_name = query_params.get('city')
 
 
 
