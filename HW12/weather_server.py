@@ -19,6 +19,27 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'Missing city parameter')
             return
+        
+
+def get_city_weather(self, city_name: str) -> dict:
+    try:
+        response = urlopen(f"{url}?q={city_name}&appid={api_key}&units=metric")
+        data = json.loads(response.read().decode('utf-8'))
+
+        if 'main' in data and 'weather' in data:
+            weather_data = {
+                'temperature': data['main']['temp'],
+                'feels_like': data['main']['feels_like'],
+                'last_updated': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            }
+
+            return weather_data
+
+    except HTTPError as e:
+        error_message = e.read().decode('utf-8')
+        print(f"Error retrieving weather data: {error_message}")
+
+    return None
 
 
 
