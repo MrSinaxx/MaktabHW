@@ -13,6 +13,13 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
         parsed_url = urllib.parse.urlparse(self.path)
         query_params = urllib.parse.parse_qs(parsed_url.query)
         city_name = query_params.get('city')
+        
+        if city_name is None or len(city_name) == 0:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b'Missing city parameter')
+            return
+
 
 
 
