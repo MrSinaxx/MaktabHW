@@ -8,16 +8,20 @@ database = WeatherDatabase()
 def start_client() -> None:
     while True:
         print("1. Get weather information")
-        print("2. Exit")
+        print("2. View database")
+        print("3. Exit")
         
         choice: str = input("Enter your choice: ")
         
         if choice == '1':
             get_weather_info()
         elif choice == '2':
+            view_database()
+        elif choice == '3':
             break
         else:
             print("Invalid choice")
+
 
 
 
@@ -63,6 +67,26 @@ def get_weather_info() -> None:
             else:
                 print("Invalid choice")
                 
+
+def view_database() -> None:
+    request_count: int = database.get_request_count()
+    successful_request_count: int = database.get_successful_request_count()
+    last_hour_requests: List[Tuple[str, str]] = database.get_last_hour_requests()
+    city_request_counts: List[Tuple[str, int]] = database.get_city_request_count()
+
+    print("^--------------------------^")
+    print(f"Request count: {request_count}")
+    print("--------------------------")
+    print(f"Successful request count: {successful_request_count}")
+    print("--------------------------")
+    print("Last hour requests:")
+    for city, time in last_hour_requests:
+        print(f"- {city}: {time}")
+    print("--------------------------")
+    print("City request counts:")
+    for city, count in city_request_counts:
+        print(f"- {city}: {count}")
+    print("--------------------------")
                 
 if __name__ == '__main__':
     start_client()
