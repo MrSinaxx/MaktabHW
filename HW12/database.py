@@ -32,3 +32,8 @@ class WeatherDatabase:
         """)
 
         self.connection.commit()
+        
+    def save_request_data(self, city_name: str, request_time: str) -> None:
+        cursor: sqlite3.Cursor = self.connection.cursor()
+        cursor.execute("INSERT INTO requests (city_name, request_time) VALUES (?, ?)", (city_name, request_time))
+        self.connection.commit()
