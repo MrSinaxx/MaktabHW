@@ -53,3 +53,9 @@ class WeatherDatabase:
         cursor: sqlite3.Cursor = self.connection.cursor()
         cursor.execute("SELECT COUNT(*) FROM responses")
         return cursor.fetchone()[0]
+    
+    def get_unsuccessful_request_count(self) -> int:
+        total_requests: int = self.get_request_count()
+        successful_requests: int = self.get_successful_request_count()
+        unsuccessful_requests: int = total_requests - successful_requests
+        return unsuccessful_requests
