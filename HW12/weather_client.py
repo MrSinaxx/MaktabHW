@@ -59,3 +59,7 @@ def get_weather_info() -> None:
                 break
             else:
                 print("Invalid choice")
+                
+                
+if __name__ == '__main__':
+    start_client()
