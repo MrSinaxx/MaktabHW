@@ -29,6 +29,8 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
             self.wfile.write(b'City not found')
+            
+            database.save_request_data("Invalid City", datetime.datetime.now().isoformat())           
             return
         
         
