@@ -64,3 +64,11 @@ class WeatherDatabase:
         cursor: sqlite3.Cursor = self.connection.cursor()
         cursor.execute("SELECT city_name, request_time FROM requests WHERE request_time > datetime('now', '-1 hour')")
         rows: List[Tuple[str, str]] = cursor.fetchall()
+
+        formatted_rows: List[Tuple[str, str]] = []
+        for city, time in rows:
+            parsed_time: datetime.datetime = datetime.datetime.fromisoformat(time)
+            formatted_time: str = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
+            formatted_rows.append((city, formatted_time))
+
+        return formatted_rows
