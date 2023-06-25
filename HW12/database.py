@@ -72,3 +72,8 @@ class WeatherDatabase:
             formatted_rows.append((city, formatted_time))
 
         return formatted_rows
+    
+    def get_city_request_count(self) -> List[Tuple[str, int]]:
+        cursor: sqlite3.Cursor = self.connection.cursor()
+        cursor.execute("SELECT city_name, COUNT(*) FROM requests GROUP BY city_name")
+        return cursor.fetchall()
