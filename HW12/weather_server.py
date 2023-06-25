@@ -20,6 +20,19 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(b'Missing city parameter')
             return
         
+        city_name = city_name[0]
+        response_data = self.get_city_weather(city_name)
+        
+        if response_data is None:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'City not found')
+            return
+        
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
+    
 
 def get_city_weather(self, city_name: str) -> dict:
     try:
