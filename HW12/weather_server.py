@@ -37,7 +37,9 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(json.dumps(response_data).encode('utf-8'))
-    
+
+        database.save_request_data(city_name, datetime.datetime.now().isoformat())
+        database.save_response_data(city_name, response_data)
 
 def get_city_weather(self, city_name: str) -> dict:
     try:
