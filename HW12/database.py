@@ -48,3 +48,8 @@ class WeatherDatabase:
         cursor: sqlite3.Cursor = self.connection.cursor()
         cursor.execute("SELECT COUNT(*) FROM requests")
         return cursor.fetchone()[0]
+
+    def get_successful_request_count(self) -> int:
+        cursor: sqlite3.Cursor = self.connection.cursor()
+        cursor.execute("SELECT COUNT(*) FROM responses")
+        return cursor.fetchone()[0]
