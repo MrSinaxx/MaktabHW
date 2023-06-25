@@ -9,3 +9,18 @@ api_key: str = "60be8f85c6c83c4402a1439456f9647c"
 
 
 
+
+
+
+
+
+
+
+def start_server() -> None:
+    server_address = ('', 8000)
+    httpd = http.server.HTTPServer(server_address, WeatherRequestHandler)
+    print("Weather server is running on http://localhost:8000")
+    httpd.serve_forever()
+
+if __name__ == '__main__':
+    start_server()
