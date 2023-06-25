@@ -1,6 +1,9 @@
 import urllib.request
 import json
 from typing import List, Tuple
+from database import WeatherDatabase
+
+database = WeatherDatabase()
 
 def start_client() -> None:
     while True:
