@@ -77,3 +77,6 @@ class WeatherDatabase:
         cursor: sqlite3.Cursor = self.connection.cursor()
         cursor.execute("SELECT city_name, COUNT(*) FROM requests GROUP BY city_name")
         return cursor.fetchall()
+
+    def __del__(self):
+        self.connection.close()
