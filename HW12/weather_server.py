@@ -28,7 +28,11 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b'City not found')
             return
-
+        
+        
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(json.dumps(response_data).encode('utf-8'))
     
 
 def get_city_weather(self, city_name: str) -> dict:
