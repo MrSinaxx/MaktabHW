@@ -59,3 +59,8 @@ class WeatherDatabase:
         successful_requests: int = self.get_successful_request_count()
         unsuccessful_requests: int = total_requests - successful_requests
         return unsuccessful_requests
+
+    def get_last_hour_requests(self) -> List[Tuple[str, str]]:
+        cursor: sqlite3.Cursor = self.connection.cursor()
+        cursor.execute("SELECT city_name, request_time FROM requests WHERE request_time > datetime('now', '-1 hour')")
+        rows: List[Tuple[str, str]] = cursor.fetchall()
