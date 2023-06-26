@@ -1,59 +1,67 @@
-import sqlite3
+import psycopg2
 from typing import List, Tuple
 import datetime
 
-
-
-
 class WeatherDatabase:
     def __init__(self):
-        self.connection: sqlite3.Connection = sqlite3.connect('weather.db')
+        self.connection: psycopg2.extensions.connection = psycopg2.connect(
+            host='localhost',
+            port='5432',
+            database='weather_db',
+            user='postgres',
+            password='motherlode'
+        )
         self.create_tables()
 
     def create_tables(self) -> None:
-        cursor: sqlite3.Cursor = self.connection.cursor()
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS requests (
+                        id SERIAL PRIMARY KEY,
+                        city_name TEXT,
+                        request_time TIMESTAMP
+                    )
+                """)
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS requests (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                city_name TEXT,
-                request_time TEXT
-            )
-        """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS responses (
+                        id SERIAL PRIMARY KEY,
+                        city_name TEXT,
+                        temperature REAL,
+                        feels_like REAL,
+                        last_updated TIMESTAMP
+                    )
+                """)
 
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS responses (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                city_name TEXT,
-                temperature REAL,
-                feels_like REAL,
-                last_updated TEXT
-            )
-        """)
-
-        self.connection.commit()
-        
     def save_request_data(self, city_name: str, request_time: str) -> None:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("INSERT INTO requests (city_name, request_time) VALUES (?, ?)", (city_name, request_time))
-        self.connection.commit()
-        
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO requests (city_name, request_time) VALUES (%s, %s)",
+                    (city_name, request_time)
+                )
+
     def save_response_data(self, city_name: str, response_data: dict) -> None:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("INSERT INTO responses (city_name, temperature, feels_like, last_updated) VALUES (?, ?, ?, ?)",
-                       (city_name, response_data['temperature'], response_data['feels_like'], response_data['last_updated']))
-        self.connection.commit()
-        
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "INSERT INTO responses (city_name, temperature, feels_like, last_updated) VALUES (%s, %s, %s, %s)",
+                    (city_name, response_data['temperature'], response_data['feels_like'], response_data['last_updated'])
+                )
+
     def get_request_count(self) -> int:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("SELECT COUNT(*) FROM requests")
-        return cursor.fetchone()[0]
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("SELECT COUNT(*) FROM requests")
+                return cursor.fetchone()[0]
 
     def get_successful_request_count(self) -> int:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("SELECT COUNT(*) FROM responses")
-        return cursor.fetchone()[0]
-    
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("SELECT COUNT(*) FROM responses")
+                return cursor.fetchone()[0]
+
     def get_unsuccessful_request_count(self) -> int:
         total_requests: int = self.get_request_count()
         successful_requests: int = self.get_successful_request_count()
@@ -61,22 +69,30 @@ class WeatherDatabase:
         return unsuccessful_requests
 
     def get_last_hour_requests(self) -> List[Tuple[str, str]]:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("SELECT city_name, request_time FROM requests WHERE request_time > datetime('now', '-1 hour')")
-        rows: List[Tuple[str, str]] = cursor.fetchall()
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                current_time = datetime.datetime.now()
+                last_hour_time = current_time - datetime.timedelta(hours=1)
+                cursor.execute(
+                    """
+                    SELECT city_name, request_time
+                    FROM requests
+                    WHERE request_time >= %s AND request_time <= %s
+                    """,
+                    (last_hour_time, current_time)
+                )
+                rows = cursor.fetchall()
+                last_hour_requests = [
+                    (city, str(time))  # Convert time to string
+                    for city, time in rows
+                ]
+                return last_hour_requests
 
-        formatted_rows: List[Tuple[str, str]] = []
-        for city, time in rows:
-            parsed_time: datetime.datetime = datetime.datetime.fromisoformat(time)
-            formatted_time: str = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
-            formatted_rows.append((city, formatted_time))
-
-        return formatted_rows
-    
     def get_city_request_count(self) -> List[Tuple[str, int]]:
-        cursor: sqlite3.Cursor = self.connection.cursor()
-        cursor.execute("SELECT city_name, COUNT(*) FROM requests GROUP BY city_name")
-        return cursor.fetchall()
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("SELECT city_name, COUNT(*) FROM requests GROUP BY city_name")
+                return cursor.fetchall()
 
-    def __del__(self):
+    def close_connection(self) -> None:
         self.connection.close()
