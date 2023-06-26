@@ -1,6 +1,8 @@
 import urllib.request
 import json
+import datetime
 from typing import List, Tuple
+from psycopg2 import connect, sql
 from database import WeatherDatabase
 
 database = WeatherDatabase()
@@ -10,9 +12,9 @@ def start_client() -> None:
         print("1. Get weather information")
         print("2. View database")
         print("3. Exit")
-        
+
         choice: str = input("Enter your choice: ")
-        
+
         if choice == '1':
             get_weather_info()
         elif choice == '2':
@@ -21,8 +23,6 @@ def start_client() -> None:
             break
         else:
             print("Invalid choice")
-
-
 
 
 def get_weather_info() -> None:
@@ -66,7 +66,7 @@ def get_weather_info() -> None:
                 break
             else:
                 print("Invalid choice")
-                
+
 
 def view_database() -> None:
     request_count: int = database.get_request_count()
@@ -81,12 +81,17 @@ def view_database() -> None:
     print("--------------------------")
     print("Last hour requests:")
     for city, time in last_hour_requests:
-        print(f"- {city}: {time}")
+        parsed_time = datetime.datetime.strptime(time.split('.')[0], '%Y-%m-%d %H:%M:%S')
+        formatted_time = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
+        print(f"- {city}: {formatted_time}")
     print("--------------------------")
     print("City request counts:")
     for city, count in city_request_counts:
         print(f"- {city}: {count}")
     print("--------------------------")
-                
+
+
+
+
 if __name__ == '__main__':
     start_client()
