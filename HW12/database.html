@@ -82,6 +82,19 @@
                 <tbody id="city-request-count"></tbody>
             </table>
         </div>
+        <div class="table-container">
+            <h2>Overall Request Counts</h2>
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Request Count</th>
+                        <th>Successful Request Count</th>
+                        <th>Unsuccessful Request Count</th>
+                    </tr>
+                </thead>
+                <tbody id="overall-request-count"></tbody>
+            </table>
+        </div>
         <div class="button-container">
             <a href="index.html" class="btn btn-primary">Go Back</a>
         </div>
@@ -95,6 +108,7 @@
                 var response = JSON.parse(request.responseText);
                 displayLastHourRequests(response.last_hour_requests);
                 displayCityRequestCount(response.city_request_count);
+                displayOverallRequestCount(response.request_count, response.successful_request_count, response.unsuccessful_request_count);
             } else if (request.readyState === 4) {
                 console.log("Error retrieving database data.");
             }
@@ -127,6 +141,21 @@
                 row.appendChild(countCell);
                 tableBody.appendChild(row);
             });
+        }
+        
+        function displayOverallRequestCount(requestCount, successfulRequestCount, unsuccessfulRequestCount) {
+            var tableBody = document.getElementById("overall-request-count");
+            var row = document.createElement("tr");
+            var requestCountCell = document.createElement("td");
+            requestCountCell.textContent = requestCount;
+            var successfulRequestCountCell = document.createElement("td");
+            successfulRequestCountCell.textContent = successfulRequestCount;
+            var unsuccessfulRequestCountCell = document.createElement("td");
+            unsuccessfulRequestCountCell.textContent = unsuccessfulRequestCount;
+            row.appendChild(requestCountCell);
+            row.appendChild(successfulRequestCountCell);
+            row.appendChild(unsuccessfulRequestCountCell);
+            tableBody.appendChild(row);
         }
     </script>
 </body>

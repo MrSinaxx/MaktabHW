@@ -36,6 +36,16 @@ class WeatherDatabase:
                     )
                 """)
 
+                cursor.execute("DROP TABLE IF EXISTS request_counts")
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS request_counts (
+                        id SERIAL PRIMARY KEY,
+                        request_count INTEGER,
+                        successful_request_count INTEGER,
+                        unsuccessful_request_count INTEGER
+                    )
+                """)
+
     def save_request_data(self, city_name: str, request_time: str) -> None:
         with self.connection:
             with self.connection.cursor() as cursor:
@@ -51,6 +61,16 @@ class WeatherDatabase:
                     "INSERT INTO responses (city_name, temperature, feels_like, last_updated) VALUES (%s, %s, %s, %s)",
                     (city_name, response_data['temperature'], response_data['feels_like'], response_data['last_updated'])
                 )
+
+    def update_request_counts(self) -> None:
+        total_requests = self.get_request_count()
+        successful_requests = self.get_successful_request_count()
+        unsuccessful_requests = self.get_unsuccessful_request_count()
+
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("INSERT INTO request_counts (request_count, successful_request_count, unsuccessful_request_count) VALUES (%s, %s, %s)",
+                               (total_requests, successful_requests, unsuccessful_requests))
 
     def get_request_count(self) -> int:
         with self.connection:
@@ -95,6 +115,12 @@ class WeatherDatabase:
             with self.connection.cursor() as cursor:
                 cursor.execute("SELECT city_name, COUNT(*) FROM requests GROUP BY city_name")
                 return cursor.fetchall()
+
+    def get_request_counts(self) -> Tuple[int, int, int]:
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute("SELECT request_count, successful_request_count, unsuccessful_request_count FROM request_counts ORDER BY id DESC LIMIT 1")
+                return cursor.fetchone() or (0, 0, 0)
 
     def close_connection(self) -> None:
         self.connection.close()

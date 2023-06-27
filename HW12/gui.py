@@ -3,10 +3,6 @@ import json
 import datetime
 import tkinter as tk
 from typing import List, Tuple
-from psycopg2 import connect, sql
-from database import WeatherDatabase
-
-database = WeatherDatabase()
 
 def get_weather_info(city_name: str) -> None:
     try:
@@ -32,22 +28,30 @@ def get_weather_info(city_name: str) -> None:
         result_label.configure(text=f"Error retrieving weather data: {e.reason}")
 
 def view_database() -> None:
-    request_count: int = database.get_request_count()
-    successful_request_count: int = database.get_successful_request_count()
-    last_hour_requests: List[Tuple[str, str]] = database.get_last_hour_requests()
-    city_request_counts: List[Tuple[str, int]] = database.get_city_request_count()
+    try:
+        response = urllib.request.urlopen("http://localhost:8000/database")
+        data = json.loads(response.read().decode('utf-8'))
 
-    result_text = f"Request count: {request_count}\n\nSuccessful request count: {successful_request_count}\n\nLast hour requests:\n"
-    for city, time in last_hour_requests:
-        parsed_time = datetime.datetime.strptime(time.split('.')[0], '%Y-%m-%d %H:%M:%S')
-        formatted_time = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
-        result_text += f"- {city}: {formatted_time}\n"
+        request_count: int = data['request_count']
+        successful_request_count: int = data['successful_request_count']
+        unsuccessful_request_count: int = data['unsuccessful_request_count']
+        last_hour_requests: List[Tuple[str, str]] = data['last_hour_requests']
+        city_request_counts: List[Tuple[str, int]] = data['city_request_count']
 
-    result_text += "\nCity request counts:\n"
-    for city, count in city_request_counts:
-        result_text += f"- {city}: {count}\n"
+        result_text = f"Request count: {request_count}\n\nSuccessful request count: {successful_request_count}\nUnsuccessful request count: {unsuccessful_request_count}\n\nLast hour requests:\n"
+        for city, time in last_hour_requests:
+            parsed_time = datetime.datetime.strptime(time.split('.')[0], '%Y-%m-%d %H:%M:%S')
+            formatted_time = parsed_time.strftime('%Y-%m-%d %H:%M:%S')
+            result_text += f"- {city}: {formatted_time}\n"
 
-    result_label.configure(text=result_text)
+        result_text += "\nCity request counts:\n"
+        for city, count in city_request_counts:
+            result_text += f"- {city}: {count}\n"
+
+        result_label.configure(text=result_text)
+
+    except urllib.error.URLError as e:
+        result_label.configure(text=f"Error retrieving database data: {e.reason}")
 
 def on_submit() -> None:
     city_name = city_entry.get()

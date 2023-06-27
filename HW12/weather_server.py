@@ -4,7 +4,6 @@ import urllib.parse
 import datetime
 from urllib.request import urlopen, HTTPError
 from http import HTTPStatus
-from psycopg2 import connect, sql
 from database import WeatherDatabase
 
 url = "https://api.openweathermap.org/data/2.5/weather"
@@ -46,6 +45,8 @@ def handle_request(request):
             database.save_request_data(city_name, datetime.datetime.now().isoformat())
             database.save_response_data(city_name, response_data)
 
+    database.update_request_counts()
+
 def get_city_weather(city_name):
     try:
         response = urlopen(f"{url}?q={city_name}&appid={api_key}&units=metric")
@@ -71,10 +72,14 @@ def get_database_data():
     try:
         last_hour_requests = database.get_last_hour_requests()
         city_request_count = database.get_city_request_count()
+        request_count, successful_request_count, unsuccessful_request_count = database.get_request_counts()
 
         data = {
             'last_hour_requests': last_hour_requests,
-            'city_request_count': city_request_count
+            'city_request_count': city_request_count,
+            'request_count': request_count,
+            'successful_request_count': successful_request_count,
+            'unsuccessful_request_count': unsuccessful_request_count
         }
 
         return data
