@@ -85,7 +85,7 @@ class WeatherDatabase:
                 )
                 rows = cursor.fetchall()
                 last_hour_requests = [
-                    (city, str(time))  # Convert time to string
+                    (city, str(time))  
                     for city, time in rows
                 ]
                 return last_hour_requests
