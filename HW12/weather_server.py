@@ -3,6 +3,7 @@ import json
 import urllib.parse
 import datetime
 from urllib.request import urlopen, HTTPError
+from http import HTTPStatus
 from psycopg2 import connect, sql
 from database import WeatherDatabase
 
@@ -17,23 +18,21 @@ def handle_request(request):
     city_name = query_params.get('city')
 
     if city_name is None or len(city_name) == 0:
-        request.send_response(400)
-        request.end_headers()
-        request.wfile.write(b'Missing city parameter')
+        request.send_error(HTTPStatus.BAD_REQUEST, 'Missing city parameter')
         return
 
     city_name = city_name[0]
     response_data = get_city_weather(city_name)
 
     if response_data is None:
-        request.send_response(404)
-        request.end_headers()
-        request.wfile.write(b'City not found')
+        request.send_error(HTTPStatus.NOT_FOUND, 'City not found')
 
         database.save_request_data("Invalid City", datetime.datetime.now().isoformat())
         return
 
-    request.send_response(200)
+    request.send_response(HTTPStatus.OK)
+    request.send_header('Content-Type', 'application/json')
+    request.send_header('Access-Control-Allow-Origin', '*')  # Allow requests from any origin
     request.end_headers()
     request.wfile.write(json.dumps(response_data).encode('utf-8'))
 
