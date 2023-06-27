@@ -13,6 +13,7 @@ API_KEY = "60be8f85c6c83c4402a1439456f9647c"
 CACHE_EXPIRATION_TIME = datetime.timedelta(minutes=10)
 
 
+# Logger class for the weather server
 class WeatherServerLogger:
     def __init__(self, name, log_file):
         self.logger = logging.getLogger(name)
@@ -33,15 +34,20 @@ class WeatherServerLogger:
         self.logger.error(message)
 
 
+# Initialize the logger
 logger = WeatherServerLogger(__name__, "weather.log")
+
+# Initialize the weather database
 database = WeatherDatabase()
 
 
+# Handle the incoming request
 def handle_request(request: http.server.BaseHTTPRequestHandler) -> None:
     parsed_url = urllib.parse.urlparse(request.path)
     query_params = urllib.parse.parse_qs(parsed_url.query)
     city_name = query_params.get('city')
 
+    # Handle request for retrieving database data
     if parsed_url.path == '/database':
         response_data = get_database_data()
         if response_data is None:
@@ -51,6 +57,7 @@ def handle_request(request: http.server.BaseHTTPRequestHandler) -> None:
             send_response(request, HTTPStatus.OK, response_data)
             logger.info('Data retrieved from the database')
 
+    # Handle request for retrieving weather data
     elif city_name is None or len(city_name) == 0:
         request.send_error(HTTPStatus.BAD_REQUEST, 'Missing city parameter')
         logger.error('Missing city parameter')
@@ -82,12 +89,14 @@ def handle_request(request: http.server.BaseHTTPRequestHandler) -> None:
     database.update_request_counts()
 
 
+# Check if the cache has expired
 def is_cache_expired(last_updated: datetime.datetime) -> bool:
     current_time = datetime.datetime.now()
     elapsed_time = current_time - last_updated
     return elapsed_time.total_seconds() >= CACHE_EXPIRATION_TIME.total_seconds()
 
 
+# Send the HTTP response
 def send_response(request, status_code, response_data):
     request.send_response(status_code)
     request.send_header('Content-Type', 'application/json')
@@ -96,6 +105,7 @@ def send_response(request, status_code, response_data):
     request.wfile.write(json.dumps(response_data).encode('utf-8'))
 
 
+# Get weather data for a given city
 def get_city_weather(city_name: str) -> Optional[Dict[str, Union[float, str]]]:
     try:
         response = urlopen(f"{URL}?q={city_name}&appid={API_KEY}&units=metric")
@@ -117,6 +127,7 @@ def get_city_weather(city_name: str) -> Optional[Dict[str, Union[float, str]]]:
     return None
 
 
+# Get data from the weather database
 def get_database_data() -> Optional[Dict[str, Union[List[Dict[str, str]], int]]]:
     try:
         last_hour_requests = database.get_last_hour_requests()
@@ -139,11 +150,13 @@ def get_database_data() -> Optional[Dict[str, Union[List[Dict[str, str]], int]]]
     return None
 
 
+# Custom request handler for the weather server
 class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         handle_request(self)
 
 
+# Start the weather server
 def start_server() -> None:
     server_address: Tuple[str, int] = ('localhost', 8000)
     httpd: http.server.HTTPServer = http.server.HTTPServer(server_address, WeatherRequestHandler)

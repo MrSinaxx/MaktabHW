@@ -26,8 +26,10 @@ def start_client() -> None:
 
 def get_weather_info() -> None:
     city_name: str = input("Enter a city name: ")
+
     while True:
         try:
+            # Send a request to the weather server to get weather information for the specified city
             response = urllib.request.urlopen(f"http://localhost:8000/?city={city_name}")
             data = json.loads(response.read().decode('utf-8'))
 
@@ -35,6 +37,7 @@ def get_weather_info() -> None:
                 print("^--------------------------^")
                 print("| Response read from cache |")
             
+            # Check if the response data contains the necessary weather information
             if 'temperature' in data and 'feels_like' in data and 'last_updated' in data:
                 print("--------------------------")
                 print(f"Temperature: {data['temperature']}°C")
@@ -50,6 +53,7 @@ def get_weather_info() -> None:
                 print("City not found")
             else:
                 print(f"Error retrieving weather data: {e.reason}")
+            
             choice = input("Enter 'r' to retry or 'b' to go back: ")
             if choice.lower() == 'r':
                 city_name = input("Enter a city name: ")
@@ -60,6 +64,7 @@ def get_weather_info() -> None:
 
         except urllib.error.URLError as e:
             print(f"Error retrieving weather data: {e.reason}")
+            
             choice = input("Enter 'r' to retry or 'b' to go back: ")
             if choice.lower() == 'r':
                 city_name = input("Enter a city name: ")
@@ -71,6 +76,7 @@ def get_weather_info() -> None:
 
 def view_database() -> None:
     try:
+        # Send a request to the weather server to get database information
         response = urllib.request.urlopen("http://localhost:8000/database")
         data = json.loads(response.read().decode('utf-8'))
 
