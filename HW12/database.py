@@ -16,6 +16,7 @@ class WeatherDatabase:
     def create_tables(self) -> None:
         with self.connection:
             with self.connection.cursor() as cursor:
+                cursor.execute("DROP TABLE IF EXISTS requests")
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS requests (
                         id SERIAL PRIMARY KEY,
@@ -24,6 +25,7 @@ class WeatherDatabase:
                     )
                 """)
 
+                cursor.execute("DROP TABLE IF EXISTS responses")
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS responses (
                         id SERIAL PRIMARY KEY,
