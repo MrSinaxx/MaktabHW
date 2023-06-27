@@ -5,6 +5,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <style>
+        body {
+            background-color: #1F2937;
+            color: #F9FAFB;
+        }
+        
         .animated {
             animation-duration: 1s;
             animation-fill-mode: both;
@@ -36,6 +41,72 @@
         .button-animation {
             animation-name: fadeIn;
         }
+        
+        .container {
+            background-color: #374151;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #1F2937;
+            color: #F9FAFB;
+            outline: none;
+        }
+        
+        .form-input::placeholder {
+            color: #9CA3AF;
+        }
+        
+        .submit-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
+            background-color: #10B981;
+            color: #F9FAFB;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-button:hover {
+            background-color: #047857;
+        }
+        
+        .weather-info {
+            margin-top: 20px;
+        }
+        
+        .weather-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .weather-details {
+            font-size: 1rem;
+        }
+        
+        .view-database {
+            margin-top: 20px;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 5px;
+            background-color: #10B981;
+            color: #F9FAFB;
+            transition: background-color 0.3s;
+        }
+        
+        .view-database:hover {
+            background-color: #047857;
+        }
     </style>
 </head>
 <body>
@@ -45,20 +116,20 @@
         </div>
         <div class="flex mb-4">
             <form id="weather-form" class="flex-grow">
-                <input type="text" id="city-input" placeholder="Enter city name" required class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+                <input type="text" id="city-input" placeholder="Enter city name" required class="form-input">
                 <div class="center button-padding">
-                    <button type="submit" class="px-4 py-2 font-medium text-white bg-green-500 rounded-md button-animation">Get Weather</button>
+                    <button type="submit" class="submit-button button-animation">Get Weather</button>
                 </div>
             </form>
         </div>
-        <div class="text-center mb-4 animated fadeIn" id="weather-info">
-            <h2 class="text-2xl font-bold">Weather Information</h2>
-            <p id="temperature" class="text-xl"></p>
-            <p id="feels-like" class="text-xl"></p>
-            <p id="last-updated" class="text-xl"></p>
+        <div class="text-center mb-4 animated fadeIn weather-info" id="weather-info">
+            <h2 class="weather-title">Weather Information</h2>
+            <p id="temperature" class="weather-details"></p>
+            <p id="feels-like" class="weather-details"></p>
+            <p id="last-updated" class="weather-details"></p>
         </div>
         <div class="text-center">
-            <a href="database.html" class="px-4 py-2 font-medium text-white bg-green-500 rounded-md">View Database</a>
+            <a href="database.html" class="view-database">View Database</a>
         </div>
     </div>
 
