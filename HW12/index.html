@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .input-container input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .weather-info {
+            text-align: center;
+        }
+
+        .weather-info h2 {
+            margin-top: 0;
+        }
+
+        .weather-info p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .database-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .database-button a {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Weather App</h1>
+        </div>
+        <div class="input-container">
+            <form id="weather-form">
+                <input type="text" id="city-input" placeholder="Enter city name" required>
+                <input type="submit" value="Get Weather">
+            </form>
+        </div>
+        <div class="weather-info" id="weather-info">
+            <h2>Weather Information</h2>
+            <p id="temperature"></p>
+            <p id="feels-like"></p>
+            <p id="last-updated"></p>
+        </div>
+        <div class="database-button">
+            <a href="database.html">View Database</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("weather-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var city = document.getElementById("city-input").value;
+            getWeather(city);
+        });
+
+        function getWeather(city) {
+            var url = "http://localhost:8000/?city=" + encodeURIComponent(city);
+            var request = new XMLHttpRequest();
+            request.open("GET", url, true);
+            request.onreadystatechange = function () {
+                if (request.readyState === 4 && request.status === 200) {
+                    var response = JSON.parse(request.responseText);
+                    displayWeather(response);
+                } else if (request.readyState === 4) {
+                    displayError();
+                }
+            };
+            request.send();
+        }
+
+        function displayWeather(weatherData) {
+            document.getElementById("temperature").innerHTML = "Temperature: " + weatherData.temperature + " °C";
+            document.getElementById("feels-like").innerHTML = "Feels Like: " + weatherData.feels_like + " °C";
+            document.getElementById("last-updated").innerHTML = "Last Updated: " + weatherData.last_updated;
+        }
+
+        function displayError() {
+            document.getElementById("temperature").innerHTML = "Error retrieving weather data.";
+            document.getElementById("feels-like").innerHTML = "";
+            document.getElementById("last-updated").innerHTML = "";
+        }
+    </script>
+</body>
+</html>

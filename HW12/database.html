@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th,
+        table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .button-container {
+            text-align: center;
+        }
+
+        .button-container a {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Weather Database</h1>
+        </div>
+        <div class="table-container">
+            <h2>Last Hour Requests</h2>
+            <table>
+                <tr>
+                    <th>City</th>
+                    <th>Request Time</th>
+                </tr>
+                <tbody id="last-hour-requests"></tbody>
+            </table>
+        </div>
+        <div class="table-container">
+            <h2>City Request Count</h2>
+            <table>
+                <tr>
+                    <th>City</th>
+                    <th>Request Count</th>
+                </tr>
+                <tbody id="city-request-count"></tbody>
+            </table>
+        </div>
+        <div class="button-container">
+            <a href="index.html">Go Back</a>
+        </div>
+    </div>
+
+    <script>
+        var request = new XMLHttpRequest();
+        request.open("GET", "http://localhost:8000/database", true);
+        request.onreadystatechange = function () {
+            if (request.readyState === 4 && request.status === 200) {
+                var response = JSON.parse(request.responseText);
+                displayLastHourRequests(response.last_hour_requests);
+                displayCityRequestCount(response.city_request_count);
+            } else if (request.readyState === 4) {
+                console.log("Error retrieving database data.");
+            }
+        };
+        request.send();
+
+        function displayLastHourRequests(lastHourRequests) {
+            var tableBody = document.getElementById("last-hour-requests");
+            lastHourRequests.forEach(function (request) {
+                var row = document.createElement("tr");
+                var cityCell = document.createElement("td");
+                cityCell.textContent = request[0];
+                var timeCell = document.createElement("td");
+                timeCell.textContent = request[1];
+                row.appendChild(cityCell);
+                row.appendChild(timeCell);
+                tableBody.appendChild(row);
+            });
+        }
+
+        function displayCityRequestCount(cityRequestCount) {
+            var tableBody = document.getElementById("city-request-count");
+            cityRequestCount.forEach(function (request) {
+                var row = document.createElement("tr");
+                var cityCell = document.createElement("td");
+                cityCell.textContent = request[0];
+                var countCell = document.createElement("td");
+                countCell.textContent = request[1];
+                row.appendChild(cityCell);
+                row.appendChild(countCell);
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
