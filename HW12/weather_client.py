@@ -31,6 +31,10 @@ def get_weather_info() -> None:
             response = urllib.request.urlopen(f"http://localhost:8000/?city={city_name}")
             data = json.loads(response.read().decode('utf-8'))
 
+            if 'cache' in data and data['cache'] == True:
+                print("^--------------------------^")
+                print("| Response read from cache |")
+            
             if 'temperature' in data and 'feels_like' in data and 'last_updated' in data:
                 print("--------------------------")
                 print(f"Temperature: {data['temperature']}°C")

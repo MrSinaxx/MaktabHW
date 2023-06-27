@@ -10,6 +10,8 @@ url = "https://api.openweathermap.org/data/2.5/weather"
 api_key = "60be8f85c6c83c4402a1439456f9647c"
 
 database = WeatherDatabase()
+CACHE_EXPIRATION_TIME = datetime.timedelta(minutes=10)
+
 
 def handle_request(request):
     parsed_url = urllib.parse.urlparse(request.path)
@@ -31,21 +33,56 @@ def handle_request(request):
         request.send_error(HTTPStatus.BAD_REQUEST, 'Missing city parameter')
     else:
         city_name = city_name[0]
-        response_data = get_city_weather(city_name)
+        cache_data = database.get_response_data(city_name)
 
-        if response_data is None:
-            request.send_error(HTTPStatus.NOT_FOUND, 'City not found')
-            database.save_request_data("Invalid City", datetime.datetime.now().isoformat())
-        else:
+        if cache_data is not None and not is_cache_expired(cache_data[2]):# Access cache data using indexes
+            response_data = {
+                'cache': True,
+                'temperature': cache_data[0],
+                'feels_like': cache_data[1],
+                'last_updated': cache_data[2].strftime('%Y-%m-%d %H:%M:%S')
+            }
+            
+            print("Reading response from cache")
             request.send_response(HTTPStatus.OK)
             request.send_header('Content-Type', 'application/json')
             request.send_header('Access-Control-Allow-Origin', '*')
             request.end_headers()
             request.wfile.write(json.dumps(response_data).encode('utf-8'))
-            database.save_request_data(city_name, datetime.datetime.now().isoformat())
-            database.save_response_data(city_name, response_data)
+        else:
+            response_data = get_city_weather(city_name)
+
+            if response_data is None:
+                request.send_error(HTTPStatus.NOT_FOUND, 'City not found')
+                database.save_request_data("Invalid City", datetime.datetime.now().isoformat())
+            else:
+                request.send_response(HTTPStatus.OK)
+                request.send_header('Content-Type', 'application/json')
+                request.send_header('Access-Control-Allow-Origin', '*')
+                request.end_headers()
+                request.wfile.write(json.dumps(response_data).encode('utf-8'))
+                database.save_request_data(city_name, datetime.datetime.now().isoformat())
+                database.save_response_data(city_name, response_data)
 
     database.update_request_counts()
+
+def is_cache_expired(last_updated):
+    current_time = datetime.datetime.now()
+    last_updated_str = last_updated.strftime('%Y-%m-%d %H:%M:%S')  # Convert datetime object to string
+    cache_time = datetime.datetime.strptime(last_updated_str, '%Y-%m-%d %H:%M:%S')
+    elapsed_time = current_time - cache_time
+    return elapsed_time.total_seconds() >= CACHE_EXPIRATION_TIME.total_seconds()  # Compare total seconds
+
+
+
+
+def send_cached_response(request, cache_data):
+    request.send_response(HTTPStatus.OK)
+    request.send_header('Content-Type', 'application/json')
+    request.send_header('Access-Control-Allow-Origin', '*')
+    request.end_headers()
+    request.wfile.write(json.dumps(cache_data).encode('utf-8'))
+
 
 def get_city_weather(city_name):
     try:

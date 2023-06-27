@@ -122,5 +122,33 @@ class WeatherDatabase:
                 cursor.execute("SELECT request_count, successful_request_count, unsuccessful_request_count FROM request_counts ORDER BY id DESC LIMIT 1")
                 return cursor.fetchone() or (0, 0, 0)
 
+    def save_response_data(self, city_name: str, response_data: dict) -> None:
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id FROM responses WHERE city_name = %s", (city_name,)
+                )
+                existing_response = cursor.fetchone()
+
+                if existing_response:
+                    cursor.execute(
+                        "UPDATE responses SET temperature = %s, feels_like = %s, last_updated = %s WHERE id = %s",
+                        (response_data['temperature'], response_data['feels_like'], response_data['last_updated'], existing_response[0])
+                    )
+                else:
+                    cursor.execute(
+                        "INSERT INTO responses (city_name, temperature, feels_like, last_updated) VALUES (%s, %s, %s, %s)",
+                        (city_name, response_data['temperature'], response_data['feels_like'], response_data['last_updated'])
+                    )
+        
+    def get_response_data(self, city_name: str) -> dict:
+        with self.connection:
+            with self.connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT temperature, feels_like, last_updated FROM responses WHERE city_name = %s",
+                    (city_name,)
+                )
+                return cursor.fetchone()
+
     def close_connection(self) -> None:
         self.connection.close()
