@@ -62,7 +62,7 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
         return None
 
 def start_server() -> None:
-    server_address = ('', 8000)
+    server_address = ('localhost', 8000)
     httpd = http.server.HTTPServer(server_address, WeatherRequestHandler)
     print("Weather server is running on http://localhost:8000")
     httpd.serve_forever()
