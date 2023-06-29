@@ -47,7 +47,6 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
         query_params = urllib.parse.parse_qs(parsed_url.query)
         city_name = query_params.get('city')
 
-        # Handle request for retrieving database data
         if parsed_url.path == '/database':
             response_data = self.get_database_data()
             if response_data is None:
@@ -55,13 +54,8 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
                 logger.error('Error retrieving database data')
             else:
                 self.send_response(HTTPStatus.OK)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                self.send_json_response(response_data)
                 logger.info('Data retrieved from the database')
-
-        # Handle request for retrieving weather data
         elif city_name is None or len(city_name) == 0:
             self.send_error(HTTPStatus.BAD_REQUEST, 'Missing city parameter')
             logger.error('Missing city parameter')
@@ -76,12 +70,6 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
                     'feels_like': cache_data[1],
                     'last_updated': cache_data[2].strftime('%Y-%m-%d %H:%M:%S')
                 }
-                self.send_response(HTTPStatus.OK)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(json.dumps(response_data).encode('utf-8'))
-                logger.info("Reading response from cache")
             else:
                 response_data = self.get_city_weather(city_name)
 
@@ -90,15 +78,22 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
                     logger.error('City not found')
                     database.save_request_data("Invalid City", datetime.datetime.now().isoformat())
                 else:
-                    self.send_response(HTTPStatus.OK)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.end_headers()
-                    self.wfile.write(json.dumps(response_data).encode('utf-8'))
                     database.save_request_data(city_name, datetime.datetime.now().isoformat())
                     database.save_response_data(city_name, response_data)
 
+            self.send_response(HTTPStatus.OK)
+            self.send_json_response(response_data)
+            logger.info("Response sent")
+
         database.update_request_counts()
+
+    def send_json_response(self, data: Optional[Dict[str, Any]]) -> None:
+        if data is not None:
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+
 
     # Check if the cache has expired
     def is_cache_expired(self, last_updated: datetime.datetime) -> bool:
