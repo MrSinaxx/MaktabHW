@@ -7,10 +7,9 @@ from urllib.request import urlopen, HTTPError
 from http import HTTPStatus
 from database import WeatherDatabase
 from typing import Optional, Dict, Any, List, Tuple, Union
+from config import URL,API_KEY,CACHE_EXPIRATION_TIME,SERVER_ADDRESS,PORT,LOG_FILE_NAME
 
-URL = "https://api.openweathermap.org/data/2.5/weather"
-API_KEY = "60be8f85c6c83c4402a1439456f9647c"
-CACHE_EXPIRATION_TIME = datetime.timedelta(minutes=10)
+
 
 
 # Logger class for the weather server
@@ -35,7 +34,7 @@ class WeatherServerLogger:
 
 
 # Initialize the logger
-logger = WeatherServerLogger(__name__, "weather.log")
+logger = WeatherServerLogger(__name__, LOG_FILE_NAME)
 
 # Initialize the weather database
 database = WeatherDatabase()
@@ -144,13 +143,12 @@ class WeatherRequestHandler(http.server.BaseHTTPRequestHandler):
 
         return None
 
-
 # Start the weather server
 def start_server() -> None:
-    server_address: Tuple[str, int] = ('localhost', 8000)
+    server_address: Tuple[str, int] = (SERVER_ADDRESS, PORT)
     httpd: http.server.HTTPServer = http.server.HTTPServer(server_address, WeatherRequestHandler)
-    print("Weather server is running on http://localhost:8000")
-    logger.info("Weather server is running on http://localhost:8000")
+    print(f"Weather server is running on http://{SERVER_ADDRESS}:{PORT}")
+    logger.info(f"Weather server is running on http://{SERVER_ADDRESS}:{PORT}")
     httpd.serve_forever()
 
 

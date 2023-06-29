@@ -1,16 +1,17 @@
 import psycopg2
 from typing import List, Tuple
 import datetime
+from config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
 class WeatherDatabase:
     def __init__(self):
         # Establish a connection to the PostgreSQL database
         self.connection: psycopg2.extensions.connection = psycopg2.connect(
-            host='localhost',
-            port='5432',
-            database='weather_db',
-            user='postgres',
-            password='motherlode'
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD
         )
         # Create the necessary tables if they don't exist
         self.create_tables()
