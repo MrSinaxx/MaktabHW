@@ -3,3 +3,4 @@ testin
 __pycache__
 old_index.html
 weather.log
+.pytest_cache
