@@ -107,19 +107,23 @@ class FileManager(BaseManager):
         with open(file_path, 'wb') as f:
             pickle.dump(m, f)
 
-    def delete(self, id: int, model_cls: type) -> None:
-        """
-        Deletes a model instance from the file system.
-
-        Args:
-            id (int): The ID of the model instance to delete.
-            model_cls (type): The type of the model instance.
-        """
+    def delete(self, id: int, model_cls: type, temporary: bool = False) -> None:
         file_path = self._get_file_path(id, model_cls)
-        try:
-            os.remove(file_path)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"File with ID {id} does not exist.")
+        if temporary:
+            trash_path = self._get_trash_file_path(id, model_cls)
+            try:
+                os.rename(file_path, trash_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"File with ID {id} does not exist.")
+        else:
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"File with ID {id} does not exist.")
+
+    def _get_trash_file_path(self, _id, model_type: type) -> str:
+        return f"{self.trash_root}/{model_type.__name__}_{_id}.pkl".replace('//', '/')
+
 
     def read_all(self, model_cls: type = None) -> Generator:
         """
