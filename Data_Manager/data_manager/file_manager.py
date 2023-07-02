@@ -101,7 +101,9 @@ class FileManager(BaseManager):
         Args:
             m (BaseModel): The model instance to update.
         """
-        pass
+        file_path = self._get_file_path(m._id, m.__class__)
+        with open(file_path, 'wb') as f:
+            pickle.dump(m, f)
 
     def delete(self, id: int, model_cls: type) -> None:
         """
