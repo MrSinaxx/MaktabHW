@@ -1,6 +1,7 @@
 from typing import Generator, Any
 from data_manager.base import BaseModel, BaseManager
 import os
+import pickle
 
 
 class FileManager(BaseManager):
@@ -69,7 +70,10 @@ class FileManager(BaseManager):
             Any: The path to the created file.
         """
         m._id = self._get_id(m.__class__)  # set ID!!!!
-        pass
+        file_path = self._get_file_path(m._id, m.__class__)
+        with open(file_path, 'wb') as f:
+            pickle.dump(m, f)
+        return file_path
 
     def read(self, id: int, model_cls: type) -> BaseModel:
         """
@@ -82,7 +86,6 @@ class FileManager(BaseManager):
         Returns:
             BaseModel: The model instance.
         """
-        pass
 
     def update(self, m: BaseModel) -> None:
         """
