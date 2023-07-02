@@ -113,7 +113,13 @@ class FileManager(BaseManager):
             id (int): The ID of the model instance to delete.
             model_cls (type): The type of the model instance.
         """
-        pass
+        path = self._get_file_path(id, model_cls)
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File with ID {id} does not exist.")
+        except Exception as e:
+            raise RuntimeError(f"Failed to delete file {path}: {str(e)}")
 
     def read_all(self, model_cls: type = None) -> Generator:
         """
