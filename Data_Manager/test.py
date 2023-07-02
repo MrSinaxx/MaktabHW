@@ -20,7 +20,8 @@ class TestModel(BaseModel):
 
 class FileManagerTest(TestCase):
     config = {
-        'ROOT_PATH': 'test_data/'
+        'ROOT_PATH': 'test_data/',
+        'TRASH_PATH': 'test_data/trash/'
     }
     manager = FileManager(config)
 
@@ -89,3 +90,18 @@ class FileManagerTest(TestCase):
 
         with self.assertRaises(FileNotFoundError):
             self.manager.read(test_model._id, test_model.__class__)
+            
+    def test6_temporary_delete(self):
+        test_model = TestModel("Test6")
+
+        self.manager.create(test_model)
+
+        self.manager.delete(test_model._id, test_model.__class__, temporary=True)
+
+        with self.assertRaises(FileNotFoundError):
+            self.manager.read(test_model._id, test_model.__class__)
+
+        self.manager.restore(test_model._id, test_model.__class__)
+
+        restored_model = self.manager.read(test_model._id, test_model.__class__)
+        self.assertEqual(restored_model, test_model)
