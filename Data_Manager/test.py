@@ -79,3 +79,13 @@ class FileManagerTest(TestCase):
 
         read_model = self.manager.read(test_model._id, test_model.__class__)
         self.assertEqual(read_model.data, updated_data)
+
+    def test5_delete(self):
+        test_model = TestModel("Test5")
+
+        self.manager.create(test_model)
+
+        self.manager.delete(test_model._id, test_model.__class__)
+
+        with self.assertRaises(FileNotFoundError):
+            self.manager.read(test_model._id, test_model.__class__)
