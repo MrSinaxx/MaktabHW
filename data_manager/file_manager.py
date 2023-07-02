@@ -131,7 +131,16 @@ class FileManager(BaseManager):
         Yields:
             BaseModel: The next model instance.
         """
-        pass
+        files = os.listdir(self.files_root + '/')
+        for file in files:
+            if model_cls is None or file.startswith(model_cls.__name__):
+                file_path = self.files_root + '/' + file
+                try:
+                    with open(file_path, 'rb') as f:
+                        model = pickle.load(f)
+                    yield model
+                except (pickle.UnpicklingError, FileNotFoundError):
+                    continue
 
     def truncate(self, model_cls: type) -> None:
         """
