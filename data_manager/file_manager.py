@@ -3,6 +3,8 @@ from data_manager.base import BaseModel, BaseManager
 import os
 import pickle
 
+class FileNotFoundError(Exception):
+    pass
 
 class FileManager(BaseManager):
     ROOT_PATH_CONFIG_KEY = 'ROOT_PATH'
@@ -86,6 +88,13 @@ class FileManager(BaseManager):
         Returns:
             BaseModel: The model instance.
         """
+        file_path = self._get_file_path(id, model_cls)
+        try:
+            with open(file_path, 'rb') as f:
+                file_contents = pickle.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File with ID {id} does not exist.")
+        return file_contents
 
     def update(self, m: BaseModel) -> None:
         """
