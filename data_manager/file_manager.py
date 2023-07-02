@@ -149,4 +149,11 @@ class FileManager(BaseManager):
         Args:
             model_cls (type): The type of the model instances to delete.
         """
-        pass
+        files = os.listdir(self.files_root + '/')
+        for file in files:
+            if file.startswith(model_cls.__name__):
+                file_path = self.files_root + '/' + file
+                try:
+                    os.remove(file_path)
+                except FileNotFoundError:
+                    continue
