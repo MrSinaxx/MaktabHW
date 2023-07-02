@@ -6,6 +6,8 @@ import pickle
 
 class FileManager(BaseManager):
     ROOT_PATH_CONFIG_KEY = 'ROOT_PATH'
+    TRASH_PATH_CONFIG_KEY = 'TRASH_PATH'
+    
 
     def __init__(self, config: dict) -> None:
         """
@@ -28,6 +30,13 @@ class FileManager(BaseManager):
         if not os.path.exists(root_dir):
             os.mkdir(root_dir)
         return root_dir
+
+    @property
+    def trash_root(self):
+        trash_dir = self.config[self.TRASH_PATH_CONFIG_KEY]
+        if not os.path.exists(trash_dir):
+            os.mkdir(trash_dir)
+        return trash_dir
 
     def _get_id(self, model_type: type) -> int:
         """
@@ -105,7 +114,7 @@ class FileManager(BaseManager):
         with open(file_path, 'wb') as f:
             pickle.dump(m, f)
 
-    def delete(self, id: int, model_cls: type) -> None:
+    def delete(self, id: int, model_cls: type, temporary: bool = False) -> None:
         """
         Deletes a model instance from the file system.
 
@@ -113,13 +122,21 @@ class FileManager(BaseManager):
             id (int): The ID of the model instance to delete.
             model_cls (type): The type of the model instance.
         """
-        path = self._get_file_path(id, model_cls)
-        try:
-            os.remove(path)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"File with ID {id} does not exist.")
-        except Exception as e:
-            raise RuntimeError(f"Failed to delete file {path}: {str(e)}")
+        file_path = self._get_file_path(id, model_cls)
+        if temporary:
+            trash_path = self._get_trash_file_path(id, model_cls)
+            try:
+                os.rename(file_path, trash_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"File with ID {id} does not exist.")
+        else:
+            try:
+                os.remove(file_path)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"File with ID {id} does not exist.")
+
+    def _get_trash_file_path(self, _id, model_type: type) -> str:
+        return f"{self.trash_root}/{model_type.__name__}_{_id}.pkl".replace('//', '/')
 
     def read_all(self, model_cls: type = None) -> Generator:
         """
