@@ -3,7 +3,26 @@ from typing import List, Tuple
 import datetime
 from config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 
-class WeatherDatabase:
+class SingletonClass:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SingletonClass, cls).__new__(cls)
+        return cls._instance        
+
+
+# class Singleton(type):
+#     _instances = {}
+
+#     def __call__(cls, *args, **kwargs):
+#         if cls not in cls._instances:
+#             cls._instances[cls] = super().__call__(*args, **kwargs)
+#         return cls._instances[cls]
+    
+# class WeatherDatabase(metaclass=Singleton):    
+
+class WeatherDatabase(SingletonClass):
     def __init__(self):
         # Establish a connection to the PostgreSQL database
         self.connection: psycopg2.extensions.connection = psycopg2.connect(
