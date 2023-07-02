@@ -123,6 +123,14 @@ class FileManager(BaseManager):
 
     def _get_trash_file_path(self, _id, model_type: type) -> str:
         return f"{self.trash_root}/{model_type.__name__}_{_id}.pkl".replace('//', '/')
+    
+    def restore(self, id: int, model_cls: type) -> None:
+        file_path = self._get_file_path(id, model_cls)
+        trash_path = self._get_trash_file_path(id, model_cls)
+        try:
+            os.rename(trash_path, file_path)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File with ID {id} does not exist in the trash folder.")
 
 
     def read_all(self, model_cls: type = None) -> Generator:
