@@ -27,13 +27,19 @@ class FileManagerTest(TestCase):
 
     def setUp(self) -> None:
         root_files_path = self.config['ROOT_PATH']
+        trash_path = self.config['TRASH_PATH']
         if os.path.exists(root_files_path):
             shutil.rmtree(root_files_path)
+        if os.path.exists(trash_path):
+            shutil.rmtree(trash_path)
 
     def tearDown(self) -> None:
         root_files_path = self.config['ROOT_PATH']
+        trash_path = self.config['TRASH_PATH']
         if os.path.exists(root_files_path):
             shutil.rmtree(root_files_path)
+        if os.path.exists(trash_path):
+            shutil.rmtree(trash_path)
 
     def test1_create(self):
         test_model = TestModel("Test1")
