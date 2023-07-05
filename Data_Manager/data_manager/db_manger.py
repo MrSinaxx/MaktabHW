@@ -79,8 +79,10 @@ class DBManager(BaseManager):
 
 
     def delete(self, id: int, model_cls: type) -> None:
-        # TODO: Complete
-        pass
+        with self.__conn.cursor() as curs:
+            curs.execute(f"DELETE FROM {model_cls.TABLE_NAME} WHERE _id = {id}")
+
+        self.__conn.commit()
 
 
 
