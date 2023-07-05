@@ -68,8 +68,14 @@ class DBManager(BaseManager):
 
 
     def update(self, m: BaseModel) -> None:
-        # TODO: Complete
-        pass
+        model_data = m.to_dict()
+        converter = self.converter_model_to_query
+        set_values = ','.join([f"{k}={converter(v)}" for k, v in model_data.items()])
+
+        with self.__conn.cursor() as curs:
+            curs.execute(f"UPDATE {m.TABLE_NAME} SET {set_values} WHERE _id = {m._id}")
+
+        self.__conn.commit()
 
 
     def delete(self, id: int, model_cls: type) -> None:
