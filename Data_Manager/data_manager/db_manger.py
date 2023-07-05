@@ -87,8 +87,12 @@ class DBManager(BaseManager):
 
 
     def read_all(self, model_cls: type):
-        # TODO: Complete
-        pass
+        with self.__conn.cursor() as curs:
+            curs.execute(f"SELECT * FROM {model_cls.TABLE_NAME}")
+            results = curs.fetchall()
+
+        models = [model_cls.from_dict(dict(result)) for result in results]
+        return models
 
 
     def truncate(self, model_cls: type) -> None:
