@@ -56,8 +56,15 @@ class DBManager(BaseManager):
         
 
     def read(self, id: int, model_cls: type) -> BaseModel:
-        # TODO: Complete
-        pass
+        with self.__conn.cursor() as curs:
+            curs.execute(f"SELECT * FROM {model_cls.TABLE_NAME} WHERE _id = {id}")
+            result = curs.fetchone()
+
+        if result is None:
+            raise FileNotFoundError(f"Model with ID {id} does not exist.")
+
+        model = model_cls.from_dict(dict(result))
+        return model
 
 
     def update(self, m: BaseModel) -> None:
