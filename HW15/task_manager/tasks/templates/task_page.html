@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <style>
+      body {
+        background-color: #212335;
+        color: #FFFFFF;
+        text-align: center;
+      }
+
+      a {
+        color: #FFFFFF;
+        text-decoration: none;
+      }
+
+      .wireframe {
+        font-size: 16px;
+      }
+
+      .col {
+        border: 2px solid #464C5C;
+        border-radius: 6px;
+        display: inline-block;
+        margin: 10px;
+        padding: 6px;
+        vertical-align: top;
+        width: 30%;
+      }
+
+      .col h1 {
+        margin: 0;
+        padding: 8px;
+        border-radius: 5px;
+        height: 40px;
+        font-size: 18px;
+        line-height: 1.5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .col ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        min-height: 180px;
+      }
+
+      .col li {
+        background-color: rgba(255, 255, 255, 0.06);
+        border: 2px solid #464C5C;
+        border-radius: 6px;
+        height: 52px;
+        margin: 8px 0;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .one h1 {
+        background-color: #056efd;
+      }
+
+      .two h1 {
+        background-color: #cb770a;
+      }
+
+      .three h1 {
+        background-color: #188753;
+      }
+
+      .no-tasks {
+        color: #FFFFFF;
+        font-style: italic;
+        opacity: 0.8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+    </style>
+
+
+    <section class="wireframe">
+      <section class="col one">
+        <h1>To Do</h1>
+        <ul>
+          {% for task in tasks_todo %}
+            <li><a href="{% url 'task' task.id %}">{{ task.title }}</a></li>
+          {% empty %}
+            <li class="no-tasks">No tasks in this section.</li>
+          {% endfor %}
+        </ul>
+      </section>
+      <section class="col two">
+        <h1>In Progress</h1>
+        <ul>
+          {% for task in tasks_in_progress %}
+            <li><a href="{% url 'task' task.id %}">{{ task.title }}</a></li>
+          {% empty %}
+            <li class="no-tasks">No tasks in this section.</li>
+          {% endfor %}
+        </ul>
+      </section>
+      <section class="col three">
+        <h1>Done</h1>
+        <ul>
+          {% for task in tasks_done %}
+            <li><a href="{% url 'task' task.id %}">{{ task.title }}</a></li>
+          {% empty %}
+            <li class="no-tasks">No tasks in this section.</li>
+          {% endfor %}
+        </ul>
+      </section>
+    </section>
+  </div>
+{% endblock %}

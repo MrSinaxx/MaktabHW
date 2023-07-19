@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <style>
+    body {
+      background-color: #212335;
+      color: #FFFFFF;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    a {
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.06);
+      border: 2px solid #464C5C;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      position: relative;
+      width: 80%;
+      max-width: 800px;
+      height: auto;
+      color: #fff;
+      transition: 0.5s;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-20px);
+    }
+
+    .card::before {
+      content: '';
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: linear-gradient(45deg, #2bff00, #003cff);
+      border-radius: 1.2em;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #1fb900, #0091ff);
+      filter: blur(30px);
+    }
+
+    .card span {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 2;
+      border-radius: 1em;
+    }
+
+    .card span::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card .card-body {
+      position: relative;
+      padding: 20px;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 2em; 
+    }
+
+    .card-text {
+      font-size: 1.2em; 
+      margin-bottom: 5px;
+    }
+
+    .card-text strong {
+      font-weight: 600; 
+    }
+
+    .card-text:last-child {
+      margin-bottom: 0; 
+    }
+
+    .card-title {
+      font-size: 1.5em;
+    }
+  </style>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">{{ task.title }}</strong></h1>
+        <p class="card-text">{{ task.description }}</p>
+        <p class="card-text"><strong>Due Date:</strong> {{ task.due_date }}</p>
+        <p class="card-text"><strong>Status:</strong> {{ task.status }}</p>
+        <p class="card-text"><strong>Category:</strong> {{ task.category.name }}</p>
+        <p class="card-text"><strong>Tags:</strong> {% for tag in task.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -4,3 +4,7 @@ __pycache__
 old_index.html
 weather.log
 .pytest_cache
+test
+.vscode
+migrations
+db.sqlite3

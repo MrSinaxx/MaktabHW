@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <style>
+      body {
+        background-color: #212335;
+        color: #FFFFFF;
+        text-align: center;
+      }
+
+      a {
+        color: #FFFFFF;
+      }
+
+      .InputContainer {
+        width: 100%;
+        max-width: 400px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(to bottom, rgb(25, 189, 148), rgb(4, 194, 112));
+        border-radius: 30px;
+        overflow: hidden;
+        cursor: pointer;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.075);
+        margin: 20px auto;
+      }
+
+      .input {
+        width: 90%;
+        height: 40px;
+        border: none;
+        outline: none;
+        caret-color: rgb(255, 81, 0);
+        background-color: rgb(255, 255, 255);
+        border-radius: 30px;
+        margin-left: 5px;
+        padding-left: 15px;
+        letter-spacing: 0.8px;
+        color: rgb(19, 19, 19);
+        font-size: 13.4px;
+      }
+
+      .search-btn {
+        width: 70px;
+        height: 40px;
+        background-color: #4495C3;
+        border: none;
+        border-radius: 30px;
+        padding: 8px;
+        margin-left: 5px;
+        margin-right: 5px;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .search-icon {
+        color: #FFFFFF;
+      }
+
+      .card {
+        background-color: rgba(255, 255, 255, 0.06);
+        border: 2px solid #464C5C;
+        border-radius: 6px;
+        margin-bottom: 20px;
+      }
+
+      .card-title {
+        background-color: #188753;
+        color: #FFFFFF;
+        font-size: 20px;
+        padding: 10px;
+        border-top-left-radius: 6px;
+        border-top-right-radius: 6px;
+      }
+
+      .card-body {
+        padding: 10px;
+      }
+
+      .card-text {
+        color: #FFFFFF;
+        margin-bottom: 10px;
+      }
+
+      .btn-primary {
+        background-color: #4495C3;
+        border-color: #4495C3;
+        margin-top: 10px;
+      }
+
+      .btn-primary:hover {
+        background-color: #3186AB;
+        border-color: #3186AB;
+      }
+
+      .btn-primary:focus {
+        box-shadow: 0 0 0 0.2rem rgba(68, 149, 195, 0.5);
+      }
+
+      .no-results {
+        color: #FFFFFF;
+        font-style: italic;
+        opacity: 0.8;
+      }
+
+      .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: rgba(255, 255, 255, 0.06);
+        border: 2px solid #464C5C;
+        border-radius: 6px;
+        padding: 5px;
+        margin-top: 5px;
+      }
+
+      .ui-autocomplete .ui-menu-item {
+        padding: 5px;
+        cursor: pointer;
+      }
+
+      .ui-autocomplete .ui-menu-item:hover {
+        background-color: #191919;
+        color: #FFFFFF;
+      }
+    </style>
+
+    <h1>Search Tasks</h1>
+    <div class="InputContainer">
+      <form method="get" action="{% url 'search' %}" style="width: 100%; display: flex;">
+        <input type="text" id="input" class="input" name="query" placeholder="Search..">
+        <button type="submit" class="search-btn">
+          <i class="fas fa-search search-icon"></i>
+        </button>
+      </form>
+    </div>
+
+    <hr class="my-4">
+
+    {% if tasks %}
+      {% for task in tasks %}
+        <div class="card">
+          <h5 class="card-title">{{ task.title }}</h5>
+          <div class="card-body">
+            <p class="card-text">{{ task.description }}</p>
+            <a href="{% url 'task' task.id %}" class="btn btn-primary">View Task</a>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="no-results">No results found.</p>
+    {% endif %}
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $.getJSON("{% url 'autocomplete_data' %}", function(data) {
+        $("#input").autocomplete({
+          source: data,
+          minLength: 2, 
+        }).autocomplete("instance")._renderItem = function(ul, item) {
+          return $("<li>")
+            .append("<div>" + item.label + "</div>")
+            .appendTo(ul);
+        };
+      });
+    });
+  </script>
+{% endblock %}

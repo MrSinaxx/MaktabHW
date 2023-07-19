@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <style>
+      body {
+        background-color: #212335;
+        color: #FFFFFF;
+        text-align: center;
+      }
+
+      a {
+        color: #FFFFFF;
+        text-decoration: none; 
+      }
+
+      .myCard {
+        background-color: transparent;
+        width: 190px;
+        height: 254px;
+        perspective: 1000px;
+        margin-bottom: 20px;
+        cursor: pointer; 
+      }
+
+      .title {
+        font-size: 1.5em;
+        font-weight: 900;
+        text-align: center;
+        margin: 0;
+      }
+
+      .innerCard {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.8s;
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+
+      .myCard:hover .innerCard {
+        transform: rotateY(180deg);
+      }
+
+      .frontSide,
+      .backSide {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 100%;
+        height: 100%;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 1rem;
+        color: white;
+        box-shadow: 0 0 0.3em rgba(255, 255, 255, 0.5);
+        font-weight: 700;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      .frontSide,
+      .frontSide::before {
+        background: linear-gradient(90deg, rgba(119,191,204,1) 0%, rgba(9,121,92,1) 0%, rgba(0,103,124,1) 100%);
+      }
+
+      .backSide,
+      .backSide::before {
+        background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+      }
+
+      .backSide {
+        transform: rotateY(180deg);
+      }
+
+      .frontSide::before,
+      .backSide::before {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        content: '';
+        width: 110%;
+        height: 110%;
+        position: absolute;
+        z-index: -1;
+        border-radius: 1em;
+        filter: blur(20px);
+        animation: animate 5s linear infinite;
+      }
+
+      @keyframes animate {
+        0% {
+          opacity: 0.3;
+        }
+
+        80% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0.3;
+        }
+      }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+
+
+      .pagination .page-link {
+        color: #FFFFFF;
+        background-color: #188753;
+        border: none;
+      }
+
+      .pagination .page-link:hover,
+      .pagination .page-link:focus {
+        background-color: #3186AB;
+      }
+    .pagination .page-item.active .page-link {
+      background-color: #0b3d33;
+    }
+
+    .pagination .page-item.active {
+      border: 1px solid #0b3d33;
+      border-radius: 5px;
+    }      
+
+    </style>
+    
+
+    <h1>All Tasks</h1>
+    <div class="row">
+      {% for task in page_obj %}
+        <div class="col-md-3">
+          <div class="myCard" onclick="window.location='{% url 'task' task.id %}'">
+            <div class="innerCard">
+              <div class="frontSide">
+                <p class="title">{{ task.title }}</p>
+                <p>Hover for details</p>
+              </div>
+              <div class="backSide">
+                <p class="title">Details</p>
+                <p><strong>Tags:</strong> {% for tag in task.tags.all %}{{ tag.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                <p><strong>Category:</strong> {{ task.category.name }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="pagination">
+      {% if page_obj.has_previous %}
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      {% endif %}
+      
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <a class="page-link active" href="?page={{ num }}">{{ num }}</a>
+        {% else %}
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+        {% endif %}
+      {% endfor %}
+      
+      {% if page_obj.has_next %}
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+
